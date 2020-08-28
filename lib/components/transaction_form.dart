@@ -1,5 +1,7 @@
+import 'package:expenses/components/adaptative_button.dart';
+import 'package:expenses/components/adaptative_date_picker.dart';
+import 'package:expenses/components/adaptative_text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class TransactionForm extends StatefulWidget {
   final void Function(String, double, DateTime) onSubmit;
@@ -28,87 +30,53 @@ class _TransactionFormState extends State<TransactionForm> {
     widget.onSubmit(title, value, _selectedDate);
   }
 
-  //método para chamar o calendário
-  _showDatePicker() {
-    showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2019), // 1/1/2019
-      lastDate: DateTime.now(), // não aceita data futura
-    ).then((pickedDate) {
-      // código executado de forma assíncrona, no futuro
-      if (pickedDate == null) {
-        return;
-      }
-
-      setState(() {
-        // se uma data foi escolhida, então armazene seu valor
-        _selectedDate = pickedDate;
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            TextField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                labelText: 'Título',
+    return SingleChildScrollView(
+      //permite rolagem no card para contornar o teclado
+      child: Card(
+        elevation: 5,
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: 10,
+            left: 10,
+            right: 10,
+            //altura do teclado (se estiver aberto)
+            bottom: 10 + MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Column(
+            children: [
+              AdaptativeTextField(
+                controller: _titleController,
+                label: 'Título',
               ),
-            ),
-            TextField(
-              //opção necessária para o teclado do iOS
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              //_ é uma forma de ignorar o parâmetro que não se deseja usar
-              //teclado iOS não suporta botão DONE no teclado numérico
-              onSubmitted: (_) => _submitForm(),
-              controller: _valueController,
-              decoration: InputDecoration(
-                labelText: 'Valor (R\$)',
+              AdaptativeTextField(
+                  //opção necessária para o teclado do iOS
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  //_ é uma forma de ignorar o parâmetro que não se deseja usar
+                  //teclado iOS não suporta botão DONE no teclado numérico
+                  onSubmitted: (_) => _submitForm(),
+                  controller: _valueController,
+                  label: 'Valor (R\$)'),
+              AdaptativeDatePicker(
+                selectedDate: _selectedDate,
+                onDateChanged: (newDate) {
+                  setState(() {
+                    _selectedDate = newDate;
+                  });
+                },
               ),
-            ),
-            Container(
-              height: 70,
-              child: Row(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: Text(
-                      _selectedDate == null
-                          ? 'Nenhuma data selecionada!'
-                          : 'Data selecionada: ${DateFormat('dd/MM/y').format(_selectedDate)}',
-                    ),
-                  ),
-                  FlatButton(
-                    textColor: Theme.of(context).primaryColor,
-                    child: Text(
-                      'Selecionar Data',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onPressed: _showDatePicker,
+                  AdaptativeButton(
+                    label: 'Nova Transação',
+                    onPressed: _submitForm,
                   ),
                 ],
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                RaisedButton(
-                  color: Theme.of(context).primaryColor,
-                  child: Text('Nova Transação'),
-                  textColor: Theme.of(context).textTheme.button.color,
-                  onPressed: _submitForm,
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

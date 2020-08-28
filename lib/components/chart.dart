@@ -54,6 +54,7 @@ class Chart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double weekTotalValue = _weekTotalValue;
+
     return Card(
       elevation: 6,
       margin: EdgeInsets.all(20),
@@ -63,8 +64,7 @@ class Chart extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: groupedTransactions.map((tr) {
-            return Flexible(
-              fit: FlexFit.tight,
+            return Expanded(
               //forçar para ocupar todos os espaços...
               // o que gera espaçamento igual nesse caso, onde todos estão concorrendo
               child: ChartBar(
